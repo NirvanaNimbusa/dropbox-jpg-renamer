@@ -88,9 +88,11 @@ fn rename_files(dir_name: &str) -> Result<(), Error> {
         if raw_path.file_stem() != jpg_path.file_stem() {
             if let Some(jpg_ext) = jpg_path.extension() {
                 raw_path.set_extension(jpg_ext);
-                ensure!(!raw_path.is_file(),
-                    "{:?} already exists; not overwriting.", raw_path);
-                fs::rename(&jpg_path, &raw_path)?;
+                if raw_path.is_file() {
+                    eprintln!("{:?} already exists; not overwriting.", raw_path);
+                } else {
+                    fs::rename(&jpg_path, &raw_path)?;
+                }
             }
         }
     }
