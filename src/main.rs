@@ -72,18 +72,13 @@ where P: Fn(&DirEntry) -> bool {
 }
 
 fn rename_files(dir_name: &str) -> Result<(), Error> {
-    let (mut raw_count, mut jpg_count) = (0, 0);
-    for entry in fs::read_dir(dir_name)? {
-        let entry = entry?;
-        raw_count += is_ext(RAW_EXTS, &entry) as u64;
-        jpg_count += is_ext(JPG_EXTS, &entry) as u64;
-    }
-    ensure!(raw_count == jpg_count,
-            "Number of RAW files does not match number of JPG files: {} vs. {}",
-            raw_count, jpg_count);
-
     let raw_paths = dir_paths(dir_name, |entry| is_ext(RAW_EXTS, &entry))?;
     let jpg_paths = dir_paths(dir_name, |entry| is_ext(JPG_EXTS, &entry))?;
+
+    ensure!(raw_paths.len() == jpg_paths.len(),
+            "Number of RAW files does not match number of JPG files: {} vs. {}",
+            raw_paths.len(), jpg_paths.len());
+
     for (mut raw_path, jpg_path) in raw_paths.into_iter().zip(jpg_paths) {
         if raw_path.file_stem() != jpg_path.file_stem() {
             if let Some(jpg_ext) = jpg_path.extension() {
