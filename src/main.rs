@@ -31,18 +31,12 @@ struct Args {
     arg_dir_name: String,
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
     let args: Args = Docopt::new(USAGE)
-        .and_then(|d| d.deserialize())
-        .unwrap_or_else(|e| e.exit());
+        .and_then(|d| d.deserialize())?;
 
-    ::std::process::exit(match rename_files(&args.arg_dir_name) {
-        Ok(()) => 0,
-        Err(err) => {
-            eprintln!("Error: {:?}", err);
-            1
-        }
-    });
+    rename_files(&args.arg_dir_name)?;
+    Ok(())
 }
 
 fn is_ext(exts: &[&str], entry: &DirEntry) -> bool {
@@ -56,8 +50,8 @@ fn is_ext(exts: &[&str], entry: &DirEntry) -> bool {
 fn dir_paths<P>(dir_name: &str, pred: P) -> io::Result<Vec<PathBuf>>
 where P: Fn(&DirEntry) -> bool {
     let files = fs::read_dir(dir_name)?
-        .filter(|&ref entry_res| match *entry_res {
-            Ok(ref entry) => pred(&entry),
+        .filter(|entry_res| match entry_res {
+            Ok(entry) => pred(&entry),
             // Keep Err entries so that they return errors when collected.
             Err(_) => true,
         })
