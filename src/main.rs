@@ -23,7 +23,7 @@ Options:
     -h, --help  Show this message.
 ";
 
-const RAW_EXTS: &[&str] = &["raw", "raf"];
+const RAW_EXTS: &[&str] = &["raw", "raf", "nef"];
 const JPG_EXTS: &[&str] = &["jpg", "jpeg"];
 
 #[derive(Debug, Deserialize)]
