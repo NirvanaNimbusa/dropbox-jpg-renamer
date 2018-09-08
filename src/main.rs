@@ -10,7 +10,7 @@ use std::io::{self};
 use std::path::{PathBuf};
 
 use docopt::Docopt;
-use failure::Error;
+use failure::Fallible;
 
 const USAGE: &'static str = "
 Dropbox JPG renamer.
@@ -31,7 +31,7 @@ struct Args {
     arg_dir_name: String,
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Fallible<()> {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())?;
 
@@ -47,7 +47,7 @@ fn is_ext(exts: &[&str], entry: &DirEntry) -> bool {
         .unwrap_or(false)
 }
 
-fn dir_paths<P>(dir_name: &str, pred: P) -> io::Result<Vec<PathBuf>>
+fn dir_paths<P>(dir_name: &str, pred: P) -> Fallible<Vec<PathBuf>>
 where P: Fn(&DirEntry) -> bool {
     let files = fs::read_dir(dir_name)?
         .filter(|entry_res| match entry_res {
@@ -65,7 +65,7 @@ where P: Fn(&DirEntry) -> bool {
     Ok(paths)
 }
 
-fn rename_files(dir_name: &str) -> Result<(), Error> {
+fn rename_files(dir_name: &str) -> Fallible<()> {
     let raw_paths = dir_paths(dir_name, |entry| is_ext(RAW_EXTS, &entry))?;
     let jpg_paths = dir_paths(dir_name, |entry| is_ext(JPG_EXTS, &entry))?;
 
